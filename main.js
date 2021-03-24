@@ -46,7 +46,6 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         if(parsed.Game !== GAME || parsed.Name === NAME) {
             return; 
         }
-        console.log(parsed.Message)
         if(parsed.Message === 'goodbye') {
             console.log('GOODBYE'); 
             delete enemies[parsed.Name]; 
@@ -133,24 +132,20 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
                 if(px + IMG_SIDE <= rigid_body.x && rigid_body.x < px + IMG_SIDE + pvx) {
                     pvx = 0; 
                     px = rigid_body.x - IMG_SIDE; 
-                    console.log("hi")
                 }
                 if(rigid_body.x + rigid_body.w <= px && px + pvx < rigid_body.x + rigid_body.w) {
                     pvx = 0; 
                     px = rigid_body.x + rigid_body.w; 
-                    console.log("hello")
                 }
             }
             if(rigid_body.x <= px + IMG_SIDE && px <= rigid_body.x + rigid_body.w) {
                 if(py + IMG_SIDE <= rigid_body.y && rigid_body.y < py + IMG_SIDE + pvy) {
                     pvy = 0; 
                     py = rigid_body.y - IMG_SIDE; 
-                    console.log("sup")
                 }
                 if(rigid_body.y + rigid_body.h <= py && py + pvy < rigid_body.y + rigid_body.h) {
                     pvy = 0; 
                     py = rigid_body.y + rigid_body.h;
-                    console.log("howdy")
                 }
             }
         }); 
@@ -166,6 +161,18 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             render.fillRect(rigid_body.x, rigid_body.y, rigid_body.w, rigid_body.h); 
         }); 
 
+        render.drawImage(player_avatar, +frame_number * IMG_SIDE, player_direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, px, py, IMG_SIDE, IMG_SIDE); 
+
+        var imageData = render.getImageData(px * u, py * u, IMG_SIDE * u, IMG_SIDE * u);
+        for (var i=0;i<imageData.data.length;i+=4) {
+            if(imageData.data[i]==255 && imageData.data[i+1]==0 && imageData.data[i+2]==0){
+                imageData.data[i]=0;
+                imageData.data[i+1]=0;
+                imageData.data[i+2]=255;
+            }
+        }
+        render.putImageData(imageData, px * u, py * u);
+
         Object.values(enemies).forEach(enemy => {
             render.drawImage(enemy_avatar, +enemy.frame_number * IMG_SIDE, enemy.direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, enemy.x, enemy.y, IMG_SIDE, IMG_SIDE); 
             let distance = Math.sqrt(Math.pow((px+IMG_SIDE/2)-(enemy.x+IMG_SIDE/2),2)+Math.pow((py+IMG_SIDE/2)-(enemy.y+IMG_SIDE/2),2))
@@ -178,10 +185,8 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             }
         }); 
 
-        render.drawImage(player_avatar, +frame_number * IMG_SIDE, player_direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, px, py, IMG_SIDE, IMG_SIDE); 
 
         render.restore()
-
         render.fillStyle = '#b00'
         render.font = "bold 30px Arial";
         render.fillText(`${points} TAGS`, 16, 40);
