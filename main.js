@@ -63,6 +63,9 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         if(parsed.Message === 'goodbye') {
             console.log('GOODBYE'); 
             delete enemies[parsed.Name]; 
+            if(parsed.Name === target){
+                target = false
+            }
             return; 
         }
         if(parsed.Message === 'connected') {
@@ -121,6 +124,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
     rigid_bodies.push(new Rigid_Body(145, 154, 32, 32))
 
     let target
+    let havePressSpace
 
     // ANIMATION LOOP
     const animation = timestamp => {
@@ -186,24 +190,6 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             render.fillRect(rigid_body.x, rigid_body.y, rigid_body.w, rigid_body.h); 
         }); 
 
-        render.drawImage(player_avatar, +frame_number * IMG_SIDE, player_direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, px, py, IMG_SIDE, IMG_SIDE); 
-
-        let tColor = nameToColor(target)
-        let pimageData = render.getImageData(tx * u + px * u, ty * u + py * u, IMG_SIDE * u, IMG_SIDE * u);
-        for (let i=0;i<pimageData.data.length;i+=4) {
-            if(pimageData.data[i]==255 && pimageData.data[i+1]==0 && pimageData.data[i+2]==0){
-                pimageData.data[i]=PCOLOR[0];
-                pimageData.data[i+1]=PCOLOR[1];
-                pimageData.data[i+2]=PCOLOR[2];
-            }
-            if(pimageData.data[i]==255 && pimageData.data[i+1]==255 && pimageData.data[i+2]==255 && target){
-                pimageData.data[i]=tColor[0];
-                pimageData.data[i+1]=tColor[1];
-                pimageData.data[i+2]=tColor[2];
-            }
-        }
-        render.putImageData(pimageData, tx * u + px * u, ty * u + py * u);
-
         if(!movement.Space){
             oldPoints = points
         }
@@ -222,6 +208,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
                 }
             }
             render.putImageData(imageData, tx * u + enemy.x * u, ty * u + enemy.y * u);
+
             let distance = Math.sqrt(Math.pow((px+IMG_SIDE/2)-(enemy.x+IMG_SIDE/2),2)+Math.pow((py+IMG_SIDE/2)-(enemy.y+IMG_SIDE/2),2))
             if(distance <= IMG_SIDE && Object.keys(enemies)[index] === target && movement.Space && points === oldPoints) {
                 send(Object.keys(enemies)[index]);
@@ -231,12 +218,52 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             index++;
         }); 
 
+        render.drawImage(player_avatar, +frame_number * IMG_SIDE, player_direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, px, py, IMG_SIDE, IMG_SIDE); 
+
+        let tColor = nameToColor(target)
+        let pimageData = render.getImageData(tx * u + px * u, ty * u + py * u, IMG_SIDE * u, IMG_SIDE * u);
+        for (let i=0;i<pimageData.data.length;i+=4) {
+            if(pimageData.data[i]==255 && pimageData.data[i+1]==0 && pimageData.data[i+2]==0){
+                pimageData.data[i]=PCOLOR[0];
+                pimageData.data[i+1]=PCOLOR[1];
+                pimageData.data[i+2]=PCOLOR[2];
+            }
+        }
+        render.putImageData(pimageData, tx * u + px * u, ty * u + py * u);
 
         render.restore()
 
+        render.fillStyle = '#777'
+        render.lineWidth = 4;
+        render.strokeStyle = '#000';   
+        render.fillRect(w/2-IMG_SIDE*4.5/2, 2, IMG_SIDE*4.5, IMG_SIDE*4.5+25)
+        render.strokeRect(w/2-IMG_SIDE*4.5/2, 2, IMG_SIDE*4.5, IMG_SIDE*4.5+25)
+        render.strokeRect(w/2-IMG_SIDE*4.5/2, 2, IMG_SIDE*4.5, IMG_SIDE*4.5+2)
+        render.drawImage(player_avatar, IMG_SIDE, IMG_SIDE*3, IMG_SIDE, IMG_SIDE, w/2-IMG_SIDE*4.5/2, 4, IMG_SIDE*4.5, IMG_SIDE*4.5);
+        let timageData = render.getImageData(w/2-IMG_SIDE*4.5/2, 4, IMG_SIDE*4.5, IMG_SIDE*4.5);
+        for (let i=0;i<timageData.data.length;i+=4) {
+            if(timageData.data[i]==255 && timageData.data[i+1]==0 && timageData.data[i+2]==0){
+                timageData.data[i]=tColor[0];
+                timageData.data[i+1]=tColor[1];
+                timageData.data[i+2]=tColor[2];
+            }
+        }
+        render.putImageData(timageData, w/2-IMG_SIDE*4.5/2, 4);
         render.fillStyle = '#b00'
-        render.font = "bold 30px Arial";
-        render.fillText(`${points} TAGS`, 16, 40);
+        render.font = "bold 16px Arial";
+        render.textAlign = "center";
+        render.fillText('TARGET', w/2-1, IMG_SIDE*4.5+22);
+
+        render.font = `bold ${4*u}px Arial`;
+
+        if(movement.Space === true){havePressSpace = true}
+        if(!havePressSpace){
+            render.fillText('Press "space" to kill your target', w/2, w-(u*5));
+        }
+
+        render.textAlign = "left";
+        render.fillText(`${points} KILLS`, 4*u, 6*u);
+
         window.requestAnimationFrame(animation); 
     }; 
     window.requestAnimationFrame(animation); 
