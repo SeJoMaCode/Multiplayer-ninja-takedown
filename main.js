@@ -177,8 +177,11 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
                     py = rigid_body.y + rigid_body.h;
                 }
             }
+            if(rigid_body.y + 1 <= py + IMG_SIDE && py < rigid_body.y + rigid_body.h - 1 && rigid_body.x + 1<= px + IMG_SIDE && px <= rigid_body.x + rigid_body.w - 1) {
+                px = rigid_body.x + rigid_body.w + 1
+            }
         }); 
-        px += pvx; 
+        px += pvx;
         py += pvy;
         if(pvx || pvy) {
             send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number})); 
