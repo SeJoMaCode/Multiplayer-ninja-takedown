@@ -4,6 +4,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
     const render = document.querySelector('canvas').getContext('2d'); 
     const U_SCALE = 128; 
     let w, h, u; 
+    let socketOpen = false;
     const resize = () => {
         w = render.canvas.width = render.canvas.clientWidth * window.devicePixelRatio; 
         h = render.canvas.height = render.canvas.clientHeight * window.devicePixelRatio; 
@@ -49,6 +50,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
     const socket = new WebSocket('wss://southwestern.media/game_dev'); 
     socket.addEventListener('open', open => {
         console.log('WEBSOCKET STARTED'); 
+        socketOpen = true
         send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
         send('connected')
     }); 
@@ -152,7 +154,9 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             player_direction = right ? 1 : up ? 2 : down ? 3 : 0; 
             if(frame_count % 10 == 0) {
                 frame_number = !frame_number; 
-                send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
+                if(socketOpen){
+                    send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
+                }
             }
         }
 
@@ -180,13 +184,17 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             }
             if(rigid_body.y + 1 <= py + IMG_SIDE && py < rigid_body.y + rigid_body.h - 1 && rigid_body.x + 1<= px + IMG_SIDE && px <= rigid_body.x + rigid_body.w - 1) {
                 px = rigid_body.x + rigid_body.w + 1
-                send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
+                if(socketOpen){
+                    send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
+                }
             }
         }); 
         px += pvx;
         py += pvy;
         if(pvx || pvy) {
-            send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number})); 
+            if(socketOpen){
+                send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number})); 
+            }
         }
         
         // RENDER DYNAMIC OBJECTS
@@ -274,7 +282,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         render.textAlign = "left";
         render.fillText(`${points} KILLS`, 4*u, 6*u);
 
-        window.requestAnimationFrame(animation); 
+        window.requestAnimationFrame(animation)        
     }; 
     window.requestAnimationFrame(animation); 
 }); 
