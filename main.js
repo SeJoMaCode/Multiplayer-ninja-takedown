@@ -152,6 +152,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             player_direction = right ? 1 : up ? 2 : down ? 3 : 0; 
             if(frame_count % 10 == 0) {
                 frame_number = !frame_number; 
+                send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
             }
         }
 
@@ -179,6 +180,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
             }
             if(rigid_body.y + 1 <= py + IMG_SIDE && py < rigid_body.y + rigid_body.h - 1 && rigid_body.x + 1<= px + IMG_SIDE && px <= rigid_body.x + rigid_body.w - 1) {
                 px = rigid_body.x + rigid_body.w + 1
+                send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
             }
         }); 
         px += pvx;
@@ -223,7 +225,6 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
 
         render.drawImage(player_avatar, +frame_number * IMG_SIDE, player_direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, px, py, IMG_SIDE, IMG_SIDE); 
 
-        let tColor = nameToColor(target)
         let pimageData = render.getImageData(tx * u + px * u, ty * u + py * u, IMG_SIDE * u, IMG_SIDE * u);
         for (let i=0;i<pimageData.data.length;i+=4) {
             if(pimageData.data[i]==255 && pimageData.data[i+1]==0 && pimageData.data[i+2]==0){
@@ -236,26 +237,32 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
 
         render.restore()
 
+        render.textAlign = "center";
         render.fillStyle = '#777'
         render.lineWidth = 4;
-        render.strokeStyle = '#000';   
+        render.strokeStyle = '#000';  
         render.fillRect(w/2-IMG_SIDE*4.5/2, 2, IMG_SIDE*4.5, IMG_SIDE*4.5+25)
         render.strokeRect(w/2-IMG_SIDE*4.5/2, 2, IMG_SIDE*4.5, IMG_SIDE*4.5+25)
         render.strokeRect(w/2-IMG_SIDE*4.5/2, 2, IMG_SIDE*4.5, IMG_SIDE*4.5+2)
-        render.drawImage(player_avatar, IMG_SIDE, IMG_SIDE*3, IMG_SIDE, IMG_SIDE, w/2-IMG_SIDE*4.5/2, 4, IMG_SIDE*4.5, IMG_SIDE*4.5);
-        let timageData = render.getImageData(w/2-IMG_SIDE*4.5/2, 4, IMG_SIDE*4.5, IMG_SIDE*4.5);
-        for (let i=0;i<timageData.data.length;i+=4) {
-            if(timageData.data[i]==255 && timageData.data[i+1]==0 && timageData.data[i+2]==0){
-                timageData.data[i]=tColor[0];
-                timageData.data[i+1]=tColor[1];
-                timageData.data[i+2]=tColor[2];
-            }
-        }
-        render.putImageData(timageData, w/2-IMG_SIDE*4.5/2, 4);
         render.fillStyle = '#b00'
         render.font = "bold 16px Arial";
-        render.textAlign = "center";
-        render.fillText('TARGET', w/2-1, IMG_SIDE*4.5+22);
+        if(target){
+            render.fillText('TARGET', w/2-1, IMG_SIDE*4.5+22);
+            let tColor = nameToColor(target) 
+            render.drawImage(player_avatar, IMG_SIDE, IMG_SIDE*3, IMG_SIDE, IMG_SIDE, w/2-IMG_SIDE*4.5/2, 4, IMG_SIDE*4.5, IMG_SIDE*4.5);
+            let timageData = render.getImageData(w/2-IMG_SIDE*4.5/2, 4, IMG_SIDE*4.5, IMG_SIDE*4.5);
+            for (let i=0;i<timageData.data.length;i+=4) {
+                if(timageData.data[i]==255 && timageData.data[i+1]==0 && timageData.data[i+2]==0){
+                    timageData.data[i]=tColor[0];
+                    timageData.data[i+1]=tColor[1];
+                    timageData.data[i+2]=tColor[2];
+                }
+            }
+            render.putImageData(timageData, w/2-IMG_SIDE*4.5/2, 4);
+        } else {
+            render.fillText('NO', w/2-1, IMG_SIDE+20, IMG_SIDE*4.5-6);
+            render.fillText('TARGET', w/2-1, IMG_SIDE+36, IMG_SIDE*4.5-6);
+        }
 
         render.font = `bold ${4*u}px Arial`;
 
