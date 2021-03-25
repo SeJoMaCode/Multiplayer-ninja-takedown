@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
     player_avatar.src = 'images/player_spritesheet.png';
 
     // PLAYER INPUT
-    const movement = {ArrowRight: false, ArrowLeft: false, ArrowDown: false, ArrowUp: false, Space: false, KeyW: false, KeyA: false, KeyS: false, KeyD: false,}; 
+    const movement = {ArrowRight: false, ArrowLeft: false, ArrowDown: false, ArrowUp: false, KeyW: false, KeyA: false, KeyS: false, KeyD: false, Space: false}; 
     document.addEventListener('keydown', keydown => {
         if(movement.hasOwnProperty(keydown.code)) {
             movement[keydown.code] = true; 
@@ -30,20 +30,21 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         }
     });
 
+    const nameToColor = name => {
+        const HEX = ('00000'+(parseFloat(name)*(1<<24)|0).toString(16)).slice(-6).match(/.{1,2}/g)
+        return [parseInt(HEX[0], 16), parseInt(HEX[1], 16), parseInt(HEX[2], 16)]
+    }
+
     let frame_number = false; 
     let frame_count = 0;
     let player_direction = 0;
     const IMG_SIDE = 16; 
     let points = 0
+    let oldPoints = points
     let px = Math.floor(Math.random() * (238 - -126) ) + -126, py = Math.floor(Math.random() * (238 - -126) ) + -126;
     const GAME = 'ninja_top_down'; 
     const NAME = Math.random().toString();
-    const PCOLORH = ('00000'+(parseFloat(NAME)*(1<<24)|0).toString(16)).slice(-6).match(/.{1,2}/g)
-    const PCOLOR = [
-        parseInt(PCOLORH[0], 16),
-        parseInt(PCOLORH[1], 16),
-        parseInt(PCOLORH[2], 16)
-    ]
+    const PCOLOR = nameToColor(NAME)
     const enemies = {}; 
     const socket = new WebSocket('wss://southwestern.media/game_dev'); 
     socket.addEventListener('open', open => {
@@ -187,6 +188,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
 
         render.drawImage(player_avatar, +frame_number * IMG_SIDE, player_direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, px, py, IMG_SIDE, IMG_SIDE); 
 
+        let tColor = nameToColor(target)
         let pimageData = render.getImageData(tx * u + px * u, ty * u + py * u, IMG_SIDE * u, IMG_SIDE * u);
         for (let i=0;i<pimageData.data.length;i+=4) {
             if(pimageData.data[i]==255 && pimageData.data[i+1]==0 && pimageData.data[i+2]==0){
@@ -194,19 +196,22 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
                 pimageData.data[i+1]=PCOLOR[1];
                 pimageData.data[i+2]=PCOLOR[2];
             }
+            if(pimageData.data[i]==255 && pimageData.data[i+1]==255 && pimageData.data[i+2]==255 && target){
+                pimageData.data[i]=tColor[0];
+                pimageData.data[i+1]=tColor[1];
+                pimageData.data[i+2]=tColor[2];
+            }
         }
         render.putImageData(pimageData, tx * u + px * u, ty * u + py * u);
 
+        if(!movement.Space){
+            oldPoints = points
+        }
         let index = 0
         Object.values(enemies).forEach(enemy => {
             render.drawImage(player_avatar, +enemy.frame_number * IMG_SIDE, enemy.direction * IMG_SIDE, IMG_SIDE, IMG_SIDE, enemy.x, enemy.y, IMG_SIDE, IMG_SIDE); 
             
-            const COLORH = ('00000'+(Object.keys(enemies)[index]*(1<<24)|0).toString(16)).slice(-6).match(/.{1,2}/g)
-            const COLOR = [
-                parseInt(COLORH[0], 16),
-                parseInt(COLORH[1], 16),
-                parseInt(COLORH[2], 16)
-            ]
+            const COLOR = nameToColor(Object.keys(enemies)[index])
 
             let imageData = render.getImageData(tx * u + enemy.x * u, ty * u + enemy.y * u, IMG_SIDE * u, IMG_SIDE * u + 5);
             for (let i=0;i<imageData.data.length;i+=4) {
@@ -217,16 +222,11 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
                 }
             }
             render.putImageData(imageData, tx * u + enemy.x * u, ty * u + enemy.y * u);
-            let tagged = false
             let distance = Math.sqrt(Math.pow((px+IMG_SIDE/2)-(enemy.x+IMG_SIDE/2),2)+Math.pow((py+IMG_SIDE/2)-(enemy.y+IMG_SIDE/2),2))
-            if(distance <= IMG_SIDE && !tagged && Object.keys(enemies)[index] === target) {
-                if(movement.Space){
-                    tagged = true
-                    console.log(`tagged ${Object.keys(enemies)[index]}`)
-                    send(Object.keys(enemies)[index]);
-                    target = Object.keys(enemies)[Math.floor(Object.keys(enemies).length * Math.random())]
-                    points++
-                }
+            if(distance <= IMG_SIDE && Object.keys(enemies)[index] === target && movement.Space && points === oldPoints) {
+                send(Object.keys(enemies)[index]);
+                target = Object.keys(enemies)[Math.floor(Object.keys(enemies).length * Math.random())]
+                points++
             }
             index++;
         }); 
@@ -237,8 +237,6 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         render.fillStyle = '#b00'
         render.font = "bold 30px Arial";
         render.fillText(`${points} TAGS`, 16, 40);
-        render.fillText(`Name: ${NAME}`, 16, 70)
-        render.fillText(`Target: ${target}`, 16, 100)
         window.requestAnimationFrame(animation); 
     }; 
     window.requestAnimationFrame(animation); 
