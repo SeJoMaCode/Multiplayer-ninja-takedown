@@ -152,7 +152,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         let pvy = +down - +up; 
         if(right || up || left || down) {
             player_direction = right ? 1 : up ? 2 : down ? 3 : 0; 
-            if(frame_count % 10 == 0) {
+            if(frame_count % 5 == 0) {
                 frame_number = !frame_number; 
                 if(socketOpen){
                     send(JSON.stringify({x: px, y: py, direction: player_direction, frame_number: frame_number}));
@@ -282,7 +282,8 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
         render.textAlign = "left";
         render.fillText(`${points} KILLS`, 4*u, 6*u);
 
-        window.requestAnimationFrame(animation)        
+        setTimeout(animation, 1000 / 30)
+        // window.requestAnimationFrame(animation)        
     }; 
     window.requestAnimationFrame(animation); 
 }); 
