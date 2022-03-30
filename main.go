@@ -5,7 +5,7 @@ import (
 	"log"
 	// "math/rand"
 	"net/http"
-	// "os"
+	"os"
 	// "sync"
 	// "time"
 
@@ -15,8 +15,8 @@ import (
 var upgrader = websocket.Upgrader{}
 
 func main() {
-	// port := os.Getenv("PORT")
-	port := "8080"
+	port := os.Getenv("PORT")
+	// port := "8080"
 
 	http.Handle("/", http.FileServer(http.Dir("./site")))
 
