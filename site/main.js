@@ -60,6 +60,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
     }; 
     socket.addEventListener('message', message => {
         const parsed = JSON.parse(message.data); 
+        console.log(parsed)
         if(parsed.Game !== GAME || parsed.Name === NAME) {
             return; 
         }
