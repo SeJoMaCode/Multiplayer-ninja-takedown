@@ -3,11 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
-	// "math/rand"
 	"net/http"
 	"os"
-	// "sync"
-	// "time"
 
 	"github.com/gorilla/websocket"
 )
@@ -43,9 +40,10 @@ func main() {
 			}
 
 			// fmt.Println(msg)
-
-			conn.WriteJSON(msg)
-
+			for connection := connections{
+				conn.WriteJSON(msg)
+			}
+			
 			// if string(msg) == "loaded" {
 			// 	fmt.Println("User Connected")
 			// 	conn.WriteJSON(currentBoxes)
