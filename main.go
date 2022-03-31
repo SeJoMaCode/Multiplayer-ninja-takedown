@@ -40,8 +40,8 @@ func main() {
 			}
 
 			// fmt.Println(msg)
-			for connection := connections{
-				conn.WriteJSON(msg)
+			for _, connection := range connections{
+				connection.WriteJSON(msg)
 			}
 			
 			// if string(msg) == "loaded" {
