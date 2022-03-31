@@ -32,7 +32,7 @@ func main() {
 		}()
 
 		for {
-			_, msg, err := conn.ReadMessage()
+			_, msg, err := conn.ReadJSON()
 
 			if err != nil {
 				fmt.Println(err)
