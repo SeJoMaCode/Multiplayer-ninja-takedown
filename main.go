@@ -32,7 +32,8 @@ func main() {
 		}()
 
 		for {
-			_, msg, err := conn.ReadJSON()
+			msg := JSON{}
+			err := conn.ReadJSON(&msg)
 
 			if err != nil {
 				fmt.Println(err)
@@ -52,4 +53,10 @@ func main() {
 	})
 
 	http.ListenAndServe(":"+port, nil)
+}
+
+type JSON struct {
+	Game	string
+	Name	string
+	Message	string
 }
