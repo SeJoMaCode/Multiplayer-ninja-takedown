@@ -277,11 +277,11 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
 
         if(movement.Space === true){havePressSpace = true}
         if(!havePressSpace){
-            render.fillText('Press "space" to kill your target', w/2, w-(u*5));
+            render.fillText('Press "space" to tag your target', w/2, w-(u*5));
         }
 
         render.textAlign = "left";
-        render.fillText(`${points} KILLS`, 4*u, 6*u);
+        render.fillText(`${points} TAG(S)`, 4*u, 6*u);
 
         setTimeout(animation, 1000 / 30)
         // window.requestAnimationFrame(animation)        
