@@ -47,7 +47,7 @@ window.addEventListener('DOMContentLoaded', DOMContentLoaded => {
     const NAME = Math.random().toString();
     const PCOLOR = nameToColor(NAME)
     const enemies = {}; 
-    const socket = new WebSocket('wss://ninja-takedown.herokuapp.com/ws'); 
+    const socket = new WebSocket('wss://ninja-takedown.onrender.com/ws'); 
     // const socket = new WebSocket('ws://localhost:8080/ws'); 
     socket.addEventListener('open', open => {
         console.log('WEBSOCKET STARTED'); 
